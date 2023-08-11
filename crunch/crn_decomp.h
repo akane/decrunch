@@ -337,12 +337,17 @@ const unsigned int cCRNHeaderMinSize = 62U;
 
 #ifndef CRND_HEADER_FILE_ONLY
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef WIN32
 #include <memory.h>
 #else
+#ifdef __APPLE__
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #endif
 #include <new> // needed for placement new, _msize, _expand
 #include <stdarg.h>
@@ -397,14 +402,12 @@ enum eClear { cClear };
 
 const uint32 cIntBits = 32U;
 
-#ifdef _WIN64
+#if INTPTR_MAX == INT64_MAX
 typedef uint64 ptr_bits;
-#else
-#ifdef __x86_64__
-typedef uint64 ptr_bits;
-#else
+#elif INTPTR_MAX == INT32_MAX
 typedef uint32 ptr_bits;
-#endif
+#else
+#error Unknown pointer size or missing size macros!
 #endif
 
 template <typename T> struct int_traits {
